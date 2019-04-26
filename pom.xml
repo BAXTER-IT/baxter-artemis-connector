@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.baxter</groupId>
+        <artifactId>baxter-connector</artifactId>
+        <version>1.0.3</version>
+    </parent>
+
+    <groupId>com.baxter.connector.jms</groupId>
+    <artifactId>baxter-artemismq-connector</artifactId>
+    <name>Baxter ArtemisMQ Connector</name>
+    <version>1.0-SNAPSHOT</version>
+
+    <url>http://baxter.artifactoryonline.com/baxter/sites/artemismq-connector/</url>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com:BAXTER-IT/baxter-artemis-connector.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:BAXTER-IT/baxter-artemis-connector.git</developerConnection>
+        <url>ssh://git@github.com:BAXTER-IT/baxter-artemis-connector.git</url>
+    </scm>
+
+    <dependencyManagement>
+
+        <dependencies>
+			
+            <dependency>
+                <groupId>javax.jms</groupId>
+                <artifactId>jms-api</artifactId>
+                <version>1.1-rev-1</version>
+            </dependency>
+			<dependency>
+				<groupId>org.apache.activemq</groupId>
+				<artifactId>artemis-jms-client-all</artifactId>
+				<version>${artemis.version}</version>
+			</dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+    <dependencies>
+            
+            <dependency>
+            <groupId>javax.jms</groupId>
+            <artifactId>jms-api</artifactId>
+        </dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>artemis-jms-client-all</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+
+    </dependencies>
+
+    <profiles>
+
+        <profile>
+            <id>Distribution-Artifactory</id>
+            <distributionManagement>
+                <site>
+                    <id>artifactory-sites-repository</id>
+                    <name>Baxter Projects Site</name>
+                    <url>dav:http://baxter.artifactoryonline.com/baxter/sites/connector/artemismq/</url>
+                </site>
+            </distributionManagement>
+        </profile>
+
+        <profile>
+            <id>TARGZ</id>
+            <activation>
+                <property>
+                    <name>!skipTarGz</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>DEB</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+
+                <plugins>
+
+                    <plugin>
+                        <artifactId>unix-maven-plugin</artifactId>
+                        <groupId>no.arktekk.unix</groupId>
+                        <executions>
+                            <execution>
+                                <id>build-deb-installer</id>
+                                <configuration>
+                                    <deb combine.children="append">
+                                        <provides>${unix.package},${connector-type},baxter-artemismq-connector-${artemis.version}</provides>
+                                    </deb>
+                                    <assembly combine.children="append">
+                                        <copyArtifact>
+                                            <artifact>javax.jms:jms-api</artifact>
+                                            <toDir>${unix.application.lib.dir}</toDir>
+                                        </copyArtifact>
+                                        <copyArtifact>
+                                            <artifact>org.apache.activemq:artemis-jms-client-all</artifact>
+                                            <toDir>${unix.application.lib.dir}</toDir>
+                                        </copyArtifact>
+                                    </assembly>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+
+            </build>
+        </profile>
+
+        <profile>
+            <id>RPM</id>
+            <activation>
+                <os>
+                    <family>unix</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <configuration>
+                            <provides combine.children="append">
+                                <provide>baxter-artemismq-connector-${artemis.version}</provide>
+                            </provides>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+    
+    <properties>
+		<artemis.version>2.7.0</artemis.version>
+        <!-- Samevalue for all JMS Connectors -->
+        <connector-type>baxter-jms-connector</connector-type>
+    </properties>
+
+</project>
